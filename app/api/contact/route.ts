@@ -62,7 +62,27 @@ export async function POST(request: Request) {
   });
 
   if (!response.ok) {
-    console.error('Contact email provider rejected the request', response.status);
+    const providerBody = await response.text();
+    let providerType = 'unknown_error';
+    let providerMessage = 'Resend returned an unreadable error response';
+
+    try {
+      const providerError = JSON.parse(providerBody) as Record<string, unknown>;
+      if (typeof providerError.name === 'string') providerType = providerError.name;
+      else if (typeof providerError.type === 'string') providerType = providerError.type;
+      if (typeof providerError.message === 'string') providerMessage = providerError.message;
+    } catch {
+      if (providerBody) providerType = 'non_json_error';
+    }
+
+    const safeMessage = providerMessage
+      .replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi, '[redacted email]')
+      .slice(0, 500);
+    console.error('Contact email provider rejected the request', {
+      status: response.status,
+      type: providerType.slice(0, 100),
+      message: safeMessage,
+    });
     return NextResponse.json({ ok: false }, { status: 502 });
   }
   return NextResponse.json({ ok: true });
