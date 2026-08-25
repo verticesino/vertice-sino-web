@@ -2,12 +2,13 @@
   "name": "vertice-sino-web",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "pnpm@10.11.1",
   "engines": {
     "node": ">=22.13.0"
   },
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "next build && opennextjs-cloudflare build --skipNextBuild",
     "cf:build": "opennextjs-cloudflare build",
     "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
     "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
