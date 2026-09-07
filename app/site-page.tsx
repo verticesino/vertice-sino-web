@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { dictionaries, languageNames, locales, type Locale } from './i18n';
 import { siteConfig } from './site-config';
 import ContactForm from './contact-form';
+import { getSeoServiceLanguageUrls } from './content/seo-service-pages';
 
 const anchors = ['inicio', 'servicios', 'proceso', 'nosotros', 'faq', 'contacto'];
 const serviceTypes: Record<Locale, string> = {
@@ -12,6 +13,8 @@ const serviceTypes: Record<Locale, string> = {
 
 export default function SitePage({ locale }: { locale: Locale }) {
   const c = dictionaries[locale];
+  const serviceUrls = getSeoServiceLanguageUrls();
+  const supplierSearchUrl = locale === 'es' ? serviceUrls.es : locale === 'pt' ? serviceUrls['pt-BR'] : undefined;
   return <main lang={c.htmlLang}>
     <script type="application/ld+json" dangerouslySetInnerHTML={{__html: JSON.stringify({ '@context':'https://schema.org', '@type':['Organization','ProfessionalService'], name:'Vértice Sino', url:`${siteConfig.siteUrl}/${locale}`, description:c.seo.description, areaServed:['Argentina','Brazil','Latin America'], serviceType:serviceTypes[locale] })}} />
     <header className="site-header">
@@ -26,7 +29,7 @@ export default function SitePage({ locale }: { locale: Locale }) {
       {locale === 'zh' && <div className="hero-note">{c.hero.note[0]}<br/>{c.hero.note[1]}</div>}
     </section>
     <section className="trust-strip">{c.trust.map((text,i)=><div className="trust-item" key={text}><span>0{i+1}</span><p>{text}</p></div>)}</section>
-    <section className="section services" id="servicios"><div className="section-heading"><div><p className="eyebrow">{c.services.eyebrow}</p><h2>{c.services.title}</h2></div><p>{c.services.intro}</p></div><div className="service-grid">{c.services.items.map(([title,text],i)=><article className="service-card" key={title}><span>0{i+1}</span><h3>{title}</h3><p>{text}</p><i>→</i></article>)}</div></section>
+    <section className="section services" id="servicios"><div className="section-heading"><div><p className="eyebrow">{c.services.eyebrow}</p><h2>{c.services.title}</h2></div><p>{c.services.intro}</p></div><div className="service-grid">{c.services.items.map(([title,text],i)=><article className="service-card" key={title}><span>0{i+1}</span><h3>{i === 0 && supplierSearchUrl ? <Link href={supplierSearchUrl}>{title}</Link> : title}</h3><p>{text}</p><i>→</i></article>)}</div></section>
     <section className="capabilities"><div className="cap-intro"><p className="eyebrow light">{c.capabilities.eyebrow}</p><h2>{c.capabilities.title}</h2><p>{c.capabilities.intro}</p></div><div className="cap-list">{c.capabilities.items.map(([title,text],i)=><div className="cap-row" key={title}><span>0{i+1}</span><h3>{title}</h3><p>{text}</p><i>↗</i></div>)}</div></section>
     <section className="section process" id="proceso"><div className="section-heading compact"><div><p className="eyebrow">{c.process.eyebrow}</p><h2>{c.process.title}</h2></div><p>{c.process.intro}</p></div><div className="steps">{c.process.items.map(([title,text],i)=><article key={title}><span>0{i+1}</span><div className="step-line"></div><h3>{title}</h3><p>{text}</p></article>)}</div></section>
     <section className="about" id="nosotros"><div className="about-graphic"><span>{c.about.graphic[0]}</span><div><b>{c.about.graphic[1]}</b><i></i><b>{c.about.graphic[2]}</b></div><span>{c.about.graphic[3]}</span></div><div className="about-copy"><p className="eyebrow">{c.about.eyebrow}</p><h2>{c.about.title}</h2>{c.about.paragraphs.map(p=><p key={p}>{p}</p>)}<a className="text-link" href="#contacto">{c.about.link} <span>→</span></a></div></section>

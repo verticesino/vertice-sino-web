@@ -17,3 +17,77 @@ main[lang="zh-CN"]{font-family:"Microsoft YaHei","PingFang SC",var(--font-body),
 .not-found{min-height:100vh;padding:clamp(40px,8vw,110px);display:flex;flex-direction:column;align-items:flex-start;justify-content:center;background:var(--cream)}.not-found .brand-mark{margin-bottom:45px}.not-found h1{font-size:clamp(42px,6vw,76px);max-width:850px;line-height:1.05;letter-spacing:-.04em}.not-found>p:not(.eyebrow){color:var(--steel);font-size:18px}.not-found nav{display:flex;align-items:center;gap:28px;margin-top:28px}
 @media(max-width:560px){.not-found nav{align-items:flex-start;flex-direction:column}.not-found h1{font-size:42px}}
 .brand-logo-link{line-height:0}.brand-logo{display:block;width:clamp(205px,17vw,250px);height:auto;object-fit:contain}@media(max-width:720px){.brand-logo{width:clamp(170px,52vw,205px)}}
+
+/* Scoped editorial layout for registered SEO service pages. */
+.seo-service-page{--muted-text:#5b6870;--brass-text:#7a5229;--brass-on-dark:#d0a66f;background:var(--cream)}
+.seo-service-container{width:min(100% - 14.4vw,1180px);margin-inline:auto}
+.seo-service-hero{padding:clamp(86px,11vw,160px) 0 clamp(78px,9vw,126px);border-bottom:1px solid var(--line)}
+.seo-service-hero-grid,.seo-service-section-heading,.seo-service-use-cases-grid,.seo-service-related-grid,.seo-service-cta-grid{display:grid;grid-template-columns:minmax(0,1.08fr) minmax(300px,.92fr);gap:clamp(54px,9vw,132px);align-items:start}
+.seo-service-hero h1{font-size:clamp(48px,6.2vw,88px);line-height:1.02;letter-spacing:-.048em;max-width:830px;margin:0}
+.seo-service-lead{padding-top:38px;border-top:1px solid var(--line)}
+.seo-service-lead p,.seo-service-copy p,.seo-service-use-cases-grid>div:last-child,.seo-service-related-grid>div:last-child,.seo-service-cta-grid>div:last-child{color:var(--muted-text);font-size:16px;line-height:1.75}
+.seo-service-lead p:last-child,.seo-service-copy p:last-child,.seo-service-related-grid>div:last-child>p:last-child{margin-bottom:0}
+.seo-service-editorial-pair{display:grid;grid-template-columns:1fr 1fr;border-inline:1px solid var(--line)}
+.seo-service-editorial{display:grid;grid-template-columns:54px 1fr;gap:26px;padding:clamp(72px,8vw,116px) clamp(32px,5vw,72px);border-bottom:1px solid var(--line)}
+.seo-service-editorial:first-child{border-right:1px solid var(--line)}
+.seo-service-index{color:var(--brass-text);font-size:11px;padding-top:4px}
+.seo-service-editorial h2,.seo-service-comparison h2,.seo-service-use-cases h2,.seo-service-related h2,.seo-service-faq h2,.seo-service-cta h2{font-size:clamp(32px,3.5vw,52px);line-height:1.12;letter-spacing:-.035em;margin-bottom:30px}
+.seo-service-copy p{max-width:580px}
+.seo-service-comparison{background:var(--navy);color:white;padding:clamp(84px,10vw,138px) 0}
+.seo-service-comparison h2,.seo-service-cta h2{color:white;margin-bottom:0}
+.seo-service-section-heading{align-items:end;margin-bottom:64px}
+.seo-service-section-heading>p{color:#b5c1c9;line-height:1.7;margin:0}
+.seo-service-comparison-list{border-top:1px solid #41586b}
+.seo-service-comparison-list article{display:grid;grid-template-columns:48px minmax(220px,.7fr) minmax(280px,1.3fr);gap:24px;align-items:start;padding:26px 0;border-bottom:1px solid #41586b}
+.seo-service-comparison-list span{color:var(--brass-on-dark);font-size:10px}
+.seo-service-comparison-list h3{color:white;font-size:19px;margin:0}
+.seo-service-comparison-list p{color:#acbac4;line-height:1.65;margin:0}
+.seo-service-use-cases,.seo-service-related,.seo-service-faq{padding:clamp(84px,10vw,138px) 0;border-bottom:1px solid var(--line)}
+.seo-service-use-cases-grid>div:last-child>p{font-weight:650;color:var(--navy)}
+.seo-service-use-cases ul{list-style:none;padding:0;margin:30px 0 0;border-top:1px solid var(--line)}
+.seo-service-use-cases li{position:relative;padding:20px 0 20px 30px;border-bottom:1px solid var(--line)}
+.seo-service-use-cases li:before{content:"";position:absolute;left:0;top:29px;width:7px;height:7px;background:var(--gold);border-radius:50%}
+.seo-service-related{background:#eae8e1}
+.seo-service-related-label{display:inline-block;color:var(--navy);font-weight:700;border-bottom:1px solid var(--gold);padding-bottom:6px;margin-top:22px}
+.seo-service-faq .seo-service-section-heading{grid-template-columns:minmax(0,760px);margin-bottom:44px}
+.seo-service-faq-list{border-top:1px solid var(--line)}
+.seo-service-faq-list details{border-bottom:1px solid var(--line)}
+.seo-service-faq-list summary{list-style:none;display:grid;grid-template-columns:48px 1fr auto;gap:22px;align-items:center;min-height:78px;padding:22px 0;cursor:pointer}
+.seo-service-faq-list summary::-webkit-details-marker{display:none}
+.seo-service-faq-list summary span{color:var(--brass-text);font-size:10px}
+.seo-service-faq-list h3{font-size:19px;margin:0}
+.seo-service-faq-list i{font-style:normal;font-size:22px;transition:transform .2s ease}
+.seo-service-faq-list details[open] i{transform:rotate(45deg)}
+.seo-service-faq-list details>p{max-width:850px;margin:0 48px 28px 70px;color:var(--muted-text);line-height:1.7}
+.seo-service-cta{background:var(--navy);color:white;padding:clamp(84px,10vw,138px) 0}
+.seo-service-cta-grid>div:last-child{color:#b5c1c9}
+.seo-service-cta .button{background:white;color:var(--navy);margin-top:24px}
+.seo-service-cta .button:hover{background:#e8e5dc}
+
+@media(max-width:900px){
+  .seo-service-container{width:min(100% - 48px,760px)}
+  .seo-service-hero-grid,.seo-service-section-heading,.seo-service-use-cases-grid,.seo-service-related-grid,.seo-service-cta-grid{grid-template-columns:1fr;gap:34px}
+  .seo-service-lead{padding-top:28px}
+  .seo-service-editorial-pair{grid-template-columns:1fr;border-inline:0}
+  .seo-service-editorial:first-child{border-right:0}
+}
+
+@media(max-width:720px){
+  .seo-service-container{width:calc(100% - 40px)}
+  .seo-service-hero{padding:66px 0 74px}
+  .seo-service-hero h1{font-size:clamp(42px,12vw,56px)}
+  .seo-service-editorial{grid-template-columns:30px 1fr;gap:10px;padding:70px 20px}
+  .seo-service-editorial h2,.seo-service-comparison h2,.seo-service-use-cases h2,.seo-service-related h2,.seo-service-faq h2,.seo-service-cta h2{font-size:36px}
+  .seo-service-comparison-list article{grid-template-columns:30px 1fr;gap:10px}
+  .seo-service-comparison-list p{grid-column:2}
+  .seo-service-faq-list summary{grid-template-columns:30px 1fr auto;gap:10px;min-height:68px}
+  .seo-service-faq-list h3{font-size:17px}
+  .seo-service-faq-list details>p{margin:0 0 26px 40px}
+}
+
+@media(max-width:359px){
+  .seo-service-container{width:calc(100% - 32px)}
+  .seo-service-hero h1{font-size:38px}
+  .seo-service-editorial{padding-inline:16px}
+  .seo-service-editorial h2,.seo-service-comparison h2,.seo-service-use-cases h2,.seo-service-related h2,.seo-service-faq h2,.seo-service-cta h2{font-size:33px}
+}

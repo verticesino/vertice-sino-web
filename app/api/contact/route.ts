@@ -1,89 +1,58 @@
 import { NextResponse } from 'next/server';
+import { contactEmailPattern, validateContact } from '@/lib/contact-rules';
+import { ContactBodyError, readContactBody } from '@/lib/contact-body';
+import { createContactRateLimiter } from '@/lib/contact-rate-limit';
 
-const requiredFields = ['name', 'company', 'country', 'email', 'product', 'message'] as const;
-const limits: Record<string, number> = { name: 100, company: 120, country: 80, email: 254, whatsapp: 40, product: 160, message: 4000, budget: 100, quantity: 100, deadline: 100 };
-const attempts = new Map<string, number[]>();
-
-function clean(value: unknown, limit: number) {
-  return typeof value === 'string' ? value.trim().slice(0, limit) : '';
-}
-
-function escapeHtml(value: string) {
-  return value.replace(/[&<>'"]/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' })[character]!);
-}
-
-function isRateLimited(ip: string) {
-  const now = Date.now();
-  const recent = (attempts.get(ip) ?? []).filter(time => now - time < 10 * 60_000);
-  recent.push(now);
-  attempts.set(ip, recent);
-  return recent.length > 5;
-}
+const limiter = createContactRateLimiter();
+const fail = (status: number, code: string, headers?: Record<string, string>) => NextResponse.json({ ok: false, error: { code } }, { status, headers: { 'Cache-Control': 'no-store', ...headers } });
+const success = () => NextResponse.json({ ok: true }, { headers: { 'Cache-Control': 'no-store' } });
+const escapeHtml = (value: string) => value.replace(/[&<>"']/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[character]!);
 
 export async function POST(request: Request) {
-  const contentLength = Number(request.headers.get('content-length') ?? 0);
-  if (contentLength > 12_000) return NextResponse.json({ ok: false }, { status: 413 });
-
   const origin = request.headers.get('origin');
-  if (origin && origin !== new URL(request.url).origin) return NextResponse.json({ ok: false }, { status: 403 });
-
-  const ip = request.headers.get('cf-connecting-ip') ?? 'unknown';
-  if (isRateLimited(ip)) return NextResponse.json({ ok: false }, { status: 429 });
-
+  if (origin && origin !== new URL(request.url).origin) return fail(403, 'forbidden');
+  const retryAfter = limiter.check(request.headers.get('cf-connecting-ip') ?? 'unknown');
+  if (retryAfter) return fail(429, 'rate_limited', { 'Retry-After': String(retryAfter) });
   let body: Record<string, unknown>;
-  try {
-    body = await request.json();
-  } catch {
-    return NextResponse.json({ ok: false }, { status: 400 });
+  try { body = await readContactBody(request); }
+  catch (error) {
+    return error instanceof ContactBodyError ? fail(error.status, error.code) : fail(400, 'invalid_json');
   }
-
-  if (clean(body.website, 200)) return NextResponse.json({ ok: true });
-  const startedAt = Number(body.startedAt);
-  const elapsed = Date.now() - startedAt;
-  if (!Number.isFinite(startedAt) || elapsed < 2_000 || elapsed > 2 * 60 * 60_000) return NextResponse.json({ ok: false }, { status: 400 });
-
-  const values = Object.fromEntries(Object.entries(limits).map(([field, limit]) => [field, clean(body[field], limit)]));
-  if (requiredFields.some(field => !values[field])) return NextResponse.json({ ok: false }, { status: 400 });
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email) || values.message.length < 10) return NextResponse.json({ ok: false }, { status: 400 });
-
-  const apiKey = process.env.RESEND_API_KEY;
-  const from = process.env.RESEND_FROM_EMAIL;
-  const to = process.env.CONTACT_TO_EMAIL ?? 'verticesino@gmail.com';
-  if (!apiKey || !from) return NextResponse.json({ ok: false }, { status: 503 });
-
+  if (typeof body.website !== 'string' || body.website.length > 200) return fail(400, 'validation_failed');
+  // Deliberately indistinguishable spam response; no provider call is made.
+  if (body.website.trim()) return success();
+  if (typeof body.startedAt !== 'number') return fail(400, 'form_expired');
+  const elapsed = Date.now() - body.startedAt;
+  if (!Number.isFinite(elapsed) || elapsed < 2000 || elapsed > 2 * 60 * 60_000) return fail(400, 'form_expired');
+  if (typeof body.locale !== 'string' || !['es', 'pt', 'zh'].includes(body.locale)) return fail(400, 'validation_failed');
+  const validated = validateContact(body);
+  if (!validated.ok) return fail(400, 'validation_failed');
+  const values = validated.values;
+  const apiKey = process.env.RESEND_API_KEY?.trim();
+  const from = process.env.RESEND_FROM_EMAIL?.trim();
+  const to = process.env.CONTACT_TO_EMAIL?.trim();
+  const fromEmail = from?.match(/<([^<>]+)>$/)?.[1] ?? from;
+  if (!apiKey || !from || !fromEmail || !contactEmailPattern.test(fromEmail) || !to || !contactEmailPattern.test(to)) return fail(503, 'service_unavailable');
   const labels: Record<string, string> = { name: 'Nombre', company: 'Empresa', country: 'País', email: 'Email', whatsapp: 'WhatsApp / teléfono', product: 'Producto o tecnología', message: 'Descripción del proyecto', budget: 'Presupuesto', quantity: 'Cantidad', deadline: 'Plazo' };
-  const text = Object.entries(labels).map(([field, label]) => `${label}: ${values[field] || '—'}`).join('\n');
-  const html = Object.entries(labels).map(([field, label]) => `<p><strong>${label}:</strong> ${escapeHtml(values[field] || '—').replace(/\n/g, '<br>')}</p>`).join('');
-
-  const response = await fetch('https://api.resend.com/emails', {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ from, to: [to], reply_to: values.email, subject: `Nueva consulta web — ${values.company}`, text, html }),
-  });
-
-  if (!response.ok) {
-    const providerBody = await response.text();
-    let providerType = 'unknown_error';
-    let providerMessage = 'Resend returned an unreadable error response';
-
-    try {
-      const providerError = JSON.parse(providerBody) as Record<string, unknown>;
-      if (typeof providerError.name === 'string') providerType = providerError.name;
-      else if (typeof providerError.type === 'string') providerType = providerError.type;
-      if (typeof providerError.message === 'string') providerMessage = providerError.message;
-    } catch {
-      if (providerBody) providerType = 'non_json_error';
-    }
-
-    const safeMessage = providerMessage
-      .replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi, '[redacted email]')
-      .slice(0, 500);
-    console.error('Contact email provider rejected the request', {
-      status: response.status,
-      type: providerType.slice(0, 100),
-      message: safeMessage,
+  const text = Object.entries(values).map(([field, value]) => `${labels[field]}: ${value || '—'}`).join('\n');
+  const html = Object.entries(values).map(([field, value]) => `<p><strong>${labels[field]}:</strong> ${escapeHtml(value || '—').replace(/\n/g, '<br>')}</p>`).join('');
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 12_000);
+  try {
+    const response = await fetch('https://api.resend.com/emails', {
+      method: 'POST', signal: controller.signal,
+      headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ from, to: [to], reply_to: values.email, subject: `Nueva consulta web — ${values.company.replace(/[\r\n]/g, ' ')}`, text, html }),
     });
-    return NextResponse.json({ ok: false }, { status: 502 });
-  }
-  return NextResponse.json({ ok: true });
+    if (!response.ok) {
+      // Never log provider bodies: they can contain customer data or configuration.
+      console.error('Contact provider rejected request', { status: response.status });
+      return fail(502, 'provider_failure');
+    }
+    const result: unknown = await response.json();
+    if (!result || typeof result !== 'object' || !('id' in result) || typeof result.id !== 'string' || !result.id || ('error' in result && result.error)) return fail(502, 'provider_failure');
+    return success();
+  } catch {
+    return fail(controller.signal.aborted ? 504 : 502, controller.signal.aborted ? 'provider_timeout' : 'provider_failure');
+  } finally { clearTimeout(timer); }
 }
