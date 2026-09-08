@@ -37,7 +37,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       type: 'website',
       locale: content.openGraphLocale,
       url: canonical,
-      images: [{ url: socialImage, width: 1792, height: 1024, alt: content.seo.imageAlt }],
+      images: [{ url: socialImage, width: 1733, height: 908, alt: content.seo.imageAlt }],
     },
     twitter: {
       card: 'summary_large_image',

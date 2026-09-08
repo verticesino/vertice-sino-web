@@ -8,6 +8,7 @@ import { siteConfig } from './site-config';
 type ContactCopy = {
   fields: Record<string, readonly string[]>;
   submit: string;
+  privacy: string;
 };
 
 const feedback = {
@@ -99,6 +100,7 @@ export default function ContactForm({ locale, contact }: { locale: Locale; conta
     <label>{requiredLabel(f.message[0])}<textarea name="message" rows={4} placeholder={f.message[1]} required minLength={contactRules.message.min} maxLength={contactRules.message.max}></textarea></label>
     <div className="form-row optional-fields"><label>{f.budget[0]}<input name="budget" type="text" placeholder={f.budget[1]} maxLength={contactRules.budget.max} /></label><label>{f.quantity[0]}<input name="quantity" type="text" placeholder={f.quantity[1]} maxLength={contactRules.quantity.max} /></label></div>
     <label>{f.deadline[0]}<input name="deadline" type="text" placeholder={f.deadline[1]} maxLength={contactRules.deadline.max} /></label>
+    <small>{contact.privacy}</small>
     <button className="button button-submit" type="submit" disabled={!ready || status === 'sending'}>{status === 'sending' ? feedback[locale].sending : contact.submit} <span>↗</span></button>
     <small className={`form-feedback${status === 'error' ? ' form-feedback-error' : ''}`} role="status" aria-live="polite">{message}</small>
   </form>;

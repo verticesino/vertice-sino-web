@@ -1,5 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import MobileMenu from './mobile-menu';
+import { interfaceCopy } from './interface-copy';
 import { dictionaries, languageNames, locales } from './i18n';
 import { siteConfig } from './site-config';
 import type { SeoServicePageContent } from './content/seo-service-pages';
@@ -13,6 +15,7 @@ function Paragraphs({ paragraphs }: { paragraphs?: readonly string[] }) {
 
 export default function SeoServicePage({ content }: { content: SeoServicePageContent }) {
   const dictionary = dictionaries[content.locale];
+  const ui = interfaceCopy[content.locale];
   const languageUrls = getSeoServiceLanguageUrls();
   const languageHref = (locale: (typeof locales)[number]) => {
     if (locale === 'es') return languageUrls.es;
@@ -22,6 +25,7 @@ export default function SeoServicePage({ content }: { content: SeoServicePageCon
 
   return (
     <main lang={content.htmlLang} className="seo-service-page">
+      <a className="skip-link" href="#service-content">{ui.skip}</a>
       <header className="site-header">
         <Link className="brand brand-logo-link" href={`/${content.locale}#inicio`} aria-label="Vértice Sino">
           <Image className="brand-logo" src="/vertice-sino-logo.png" alt="Vértice Sino — Business & Technology" width={575} height={119} priority />
@@ -30,23 +34,22 @@ export default function SeoServicePage({ content }: { content: SeoServicePageCon
           {dictionary.nav.map((label, index) => <a key={label} href={`/${content.locale}#${homeAnchors[index]}`}>{label}</a>)}
         </nav>
         <div className="header-actions">
-          <div className="language-switch" aria-label="Language selector">
-            {locales.map((locale) => <Link key={locale} href={languageHref(locale)} hrefLang={dictionaries[locale].htmlLang} aria-current={locale === content.locale ? 'page' : undefined}>{languageNames[locale]}</Link>)}
+          <div className="language-switch" aria-label={ui.language}>
+            {locales.map((locale) => <Link key={locale} href={languageHref(locale)} aria-label={locale === 'zh' ? ui.chineseHome : undefined} hrefLang={dictionaries[locale].htmlLang} aria-current={locale === content.locale ? 'page' : undefined}>{languageNames[locale]}</Link>)}
           </div>
           <a className="button button-small" href={`/${content.locale}#contacto`}>{dictionary.cta}</a>
         </div>
-        <details className="mobile-menu">
-          <summary aria-label={dictionary.menuLabel}><span></span><span></span></summary>
+        <MobileMenu label={dictionary.menuLabel}>
           <nav aria-label={dictionary.menuLabel}>
             {dictionary.nav.map((label, index) => <a key={label} href={`/${content.locale}#${homeAnchors[index]}`}>{label}</a>)}
             <div className="mobile-languages">
-              {locales.map((locale) => <Link key={locale} href={languageHref(locale)} hrefLang={dictionaries[locale].htmlLang} aria-current={locale === content.locale ? 'page' : undefined}>{languageNames[locale]}</Link>)}
+              {locales.map((locale) => <Link key={locale} href={languageHref(locale)} aria-label={locale === 'zh' ? ui.chineseHome : undefined} hrefLang={dictionaries[locale].htmlLang} aria-current={locale === content.locale ? 'page' : undefined}>{languageNames[locale]}</Link>)}
             </div>
           </nav>
-        </details>
+        </MobileMenu>
       </header>
 
-      <article>
+      <article id="service-content" tabIndex={-1}>
         <section className="seo-service-hero">
           <div className="seo-service-container seo-service-hero-grid">
             <div>

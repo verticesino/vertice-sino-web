@@ -2,6 +2,8 @@ import Link from 'next/link';
 import { dictionaries, languageNames, locales, type Locale } from './i18n';
 import { siteConfig } from './site-config';
 import ContactForm from './contact-form';
+import MobileMenu from './mobile-menu';
+import { interfaceCopy } from './interface-copy';
 import { getSeoServiceLanguageUrls } from './content/seo-service-pages';
 
 const anchors = ['inicio', 'servicios', 'proceso', 'nosotros', 'faq', 'contacto'];
@@ -13,17 +15,19 @@ const serviceTypes: Record<Locale, string> = {
 
 export default function SitePage({ locale }: { locale: Locale }) {
   const c = dictionaries[locale];
+  const ui = interfaceCopy[locale];
   const serviceUrls = getSeoServiceLanguageUrls();
   const supplierSearchUrl = locale === 'es' ? serviceUrls.es : locale === 'pt' ? serviceUrls['pt-BR'] : undefined;
   return <main lang={c.htmlLang}>
-    <script type="application/ld+json" dangerouslySetInnerHTML={{__html: JSON.stringify({ '@context':'https://schema.org', '@type':['Organization','ProfessionalService'], name:'Vértice Sino', url:`${siteConfig.siteUrl}/${locale}`, description:c.seo.description, areaServed:['Argentina','Brazil','Latin America'], serviceType:serviceTypes[locale] })}} />
+    <script type="application/ld+json" dangerouslySetInnerHTML={{__html: JSON.stringify({ '@context':'https://schema.org', '@graph': [{ '@type':'Organization', '@id':`${siteConfig.siteUrl}/#organization`, name:'Vértice Sino', url:siteConfig.siteUrl, logo:`${siteConfig.siteUrl}/vertice-sino-logo.png`, description:c.seo.description, areaServed:['Argentina','Brazil','Latin America'] }, { '@type':'Service', '@id':`${siteConfig.siteUrl}/${locale}#service`, serviceType:serviceTypes[locale], provider:{'@id':`${siteConfig.siteUrl}/#organization`} }, { '@type':'WebSite', '@id':`${siteConfig.siteUrl}/#website`, name:'Vértice Sino', url:siteConfig.siteUrl, publisher:{'@id':`${siteConfig.siteUrl}/#organization`} }] })}} />
+    <a className="skip-link" href="#inicio">{ui.skip}</a>
     <header className="site-header">
       <Link className="brand brand-logo-link" href={`/${locale}#inicio`} aria-label="Vértice Sino"><img className="brand-logo" src="/vertice-sino-logo.png" alt="Vértice Sino — Business & Technology" width="575" height="119" /></Link>
       <nav className="nav" aria-label={c.menuLabel}>{c.nav.map((label,i)=><a key={label} href={`#${anchors[i]}`}>{label}</a>)}</nav>
-      <div className="header-actions"><div className="language-switch" aria-label="Language selector">{locales.map(lang=><Link key={lang} href={`/${lang}`} hrefLang={dictionaries[lang].htmlLang} aria-current={lang===locale?'page':undefined}>{languageNames[lang]}</Link>)}</div><a className="button button-small" href="#contacto">{c.cta}</a></div>
-      <details className="mobile-menu"><summary aria-label={c.menuLabel}><span></span><span></span></summary><nav>{c.nav.map((label,i)=><a key={label} href={`#${anchors[i]}`}>{label}</a>)}<div className="mobile-languages">{locales.map(lang=><Link key={lang} href={`/${lang}`} aria-current={lang===locale?'page':undefined}>{languageNames[lang]}</Link>)}</div></nav></details>
+      <div className="header-actions"><div className="language-switch" aria-label={ui.language}>{locales.map(lang=><Link key={lang} href={`/${lang}`} hrefLang={dictionaries[lang].htmlLang} aria-current={lang===locale?'page':undefined}>{languageNames[lang]}</Link>)}</div><a className="button button-small" href="#contacto">{c.cta}</a></div>
+      <MobileMenu label={c.menuLabel}><nav aria-label={c.menuLabel}>{c.nav.map((label,i)=><a key={label} href={`#${anchors[i]}`}>{label}</a>)}<div className="mobile-languages">{locales.map(lang=><Link key={lang} href={`/${lang}`} aria-current={lang===locale?'page':undefined}>{languageNames[lang]}</Link>)}</div></nav></MobileMenu>
     </header>
-    <section className="hero" id="inicio">
+    <section className="hero" id="inicio" tabIndex={-1}>
       <div className="hero-copy reveal"><p className="eyebrow">{c.hero.eyebrow}</p><h1>{c.hero.title}</h1><p className="hero-lead">{c.hero.lead}</p>{locale === 'zh' ? <div className="hero-actions"><a className="button" href="#contacto">{c.cta} <span>↗</span></a><a className="text-link" href="#proceso">{c.hero.process} <span>→</span></a></div> : <div className="hero-cta-block"><div className="hero-actions"><a className="button" href="#contacto">{c.cta} <span>↗</span></a><a className="text-link" href="#proceso">{c.hero.process} <span>→</span></a></div><div className="hero-supporting-note">{c.hero.note[0]}<br/>{c.hero.note[1]}</div></div>}</div>
       <div className="hero-visual"><div className="visual-top"><span>{c.hero.latam}</span><i></i><span>{c.hero.china}</span></div><div className="visual-core"><span className="orbit orbit-one"></span><span className="orbit orbit-two"></span><div className="core-label"><b>{c.hero.core[0]}</b><small>{c.hero.core[1]}</small></div></div><div className="visual-stats">{c.hero.stats.map(([title,text])=><div key={title}><b>{title}</b><span>{text}</span></div>)}</div></div>
       {locale === 'zh' && <div className="hero-note">{c.hero.note[0]}<br/>{c.hero.note[1]}</div>}
@@ -36,6 +40,6 @@ export default function SitePage({ locale }: { locale: Locale }) {
     <section className="scope"><p className="eyebrow">{c.scope.eyebrow}</p><h2>{c.scope.title}</h2><p className="scope-intro">{c.scope.intro}</p><div className="scope-grid">{c.scope.items.map(([bold,text])=><p key={bold}><b>{bold}</b> {text}</p>)}</div></section>
     <section className="faq section" id="faq"><div className="section-heading compact"><div><p className="eyebrow">{c.faq.eyebrow}</p><h2>{c.faq.title}</h2></div></div><div className="faq-list">{c.faq.items.map(([question,answer],i)=><details key={question}><summary><span>0{i+1}</span><h3>{question}</h3><i>+</i></summary><p>{answer}</p></details>)}</div></section>
     <section className="contact" id="contacto"><div className="contact-copy"><p className="eyebrow light">{c.contact.eyebrow}</p><h2>{c.contact.title}</h2><p>{c.contact.intro}</p>{siteConfig.whatsappUrl && <a className="whatsapp" href={siteConfig.whatsappUrl} target="_blank" rel="noreferrer"><span>WA</span><div><small>{c.contact.whatsapp[0]}</small><b>WhatsApp</b></div><i>↗</i></a>}{siteConfig.contactEmail && <a className="contact-email" href={`mailto:${siteConfig.contactEmail}`}>{siteConfig.contactEmail}</a>}</div><ContactForm locale={locale} contact={c.contact} /></section>
-    <footer><div className="footer-brand-copy"><strong>Vértice Sino</strong><small>Conexiones industriales con criterio.</small></div><div><a href="#servicios">{c.nav[1]}</a><a href="#proceso">{c.nav[2]}</a><a href="#faq">{c.nav[4]}</a><a href="#contacto">{c.nav[5]}</a>{siteConfig.contactEmail && <a href={`mailto:${siteConfig.contactEmail}`}>{siteConfig.contactEmail}</a>}</div><span>{c.footer.copyright}</span></footer>
+    <footer><div className="footer-brand-copy"><strong>Vértice Sino</strong><small>{c.footer.tagline}</small></div><div><a href="#servicios">{c.nav[1]}</a><a href="#proceso">{c.nav[2]}</a><a href="#faq">{c.nav[4]}</a><a href="#contacto">{c.nav[5]}</a>{siteConfig.contactEmail && <a href={`mailto:${siteConfig.contactEmail}`}>{siteConfig.contactEmail}</a>}</div><span>{c.footer.copyright}</span></footer>
   </main>;
 }
