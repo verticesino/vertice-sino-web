@@ -1,2 +1,5 @@
 import { redirect } from 'next/navigation';
-export default function RootPage() { redirect('/es'); }
+import SiteDocument from './site-document';
+
+function RedirectToSpanish() { return redirect('/es'); }
+export default function RootPage() { return <SiteDocument lang="es"><RedirectToSpanish /></SiteDocument>; }

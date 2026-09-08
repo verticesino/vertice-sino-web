@@ -1,10 +1,4 @@
 import type { Metadata } from 'next';
-import { Manrope, DM_Sans } from 'next/font/google';
-import './globals.css';
-import './phase-b.css';
-
-const heading = Manrope({ variable: '--font-heading', subsets: ['latin'] });
-const body = DM_Sans({ variable: '--font-body', subsets: ['latin'] });
 
 export const metadata: Metadata = {
   title: 'Vértice Sino | Proveedores y tecnología industrial de China',
@@ -15,5 +9,5 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="es"><body className={`${heading.variable} ${body.variable}`}>{children}</body></html>;
+  return children;
 }

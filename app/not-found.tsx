@@ -1,7 +1,8 @@
 import Link from 'next/link';
+import SiteDocument from './site-document';
 
 export default function NotFound() {
-  return <main className="not-found">
+  return <SiteDocument lang="es"><main className="not-found">
     <span className="brand-mark">VS</span>
     <p className="eyebrow">404 · Página no encontrada</p>
     <h1>Esta página no está disponible.</h1>
@@ -11,5 +12,5 @@ export default function NotFound() {
       <Link className="text-link" href="/pt">Português</Link>
       <Link className="text-link" href="/zh">简体中文</Link>
     </nav>
-  </main>;
+  </main></SiteDocument>;
 }
