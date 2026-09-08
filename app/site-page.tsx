@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import HeaderLogo from './header-logo';
 import { dictionaries, languageNames, locales, type Locale } from './i18n';
 import { siteConfig } from './site-config';
 import ContactForm from './contact-form';
@@ -22,7 +23,7 @@ export default function SitePage({ locale }: { locale: Locale }) {
     <script type="application/ld+json" dangerouslySetInnerHTML={{__html: JSON.stringify({ '@context':'https://schema.org', '@graph': [{ '@type':'Organization', '@id':`${siteConfig.siteUrl}/#organization`, name:'Vértice Sino', url:siteConfig.siteUrl, logo:`${siteConfig.siteUrl}/vertice-sino-logo.png`, description:c.seo.description, areaServed:['Argentina','Brazil','Latin America'] }, { '@type':'Service', '@id':`${siteConfig.siteUrl}/${locale}#service`, serviceType:serviceTypes[locale], provider:{'@id':`${siteConfig.siteUrl}/#organization`} }, { '@type':'WebSite', '@id':`${siteConfig.siteUrl}/#website`, name:'Vértice Sino', url:siteConfig.siteUrl, publisher:{'@id':`${siteConfig.siteUrl}/#organization`} }] })}} />
     <a className="skip-link" href="#inicio">{ui.skip}</a>
     <header className="site-header">
-      <Link className="brand brand-logo-link" href={`/${locale}#inicio`} aria-label="Vértice Sino"><img className="brand-logo" src="/vertice-sino-logo.png" alt="Vértice Sino — Business & Technology" width="575" height="119" /></Link>
+      <HeaderLogo href={`/${locale}#inicio`} />
       <nav className="nav" aria-label={c.menuLabel}>{c.nav.map((label,i)=><a key={label} href={`#${anchors[i]}`}>{label}</a>)}</nav>
       <div className="header-actions"><div className="language-switch" aria-label={ui.language}>{locales.map(lang=><Link key={lang} href={`/${lang}`} hrefLang={dictionaries[lang].htmlLang} aria-current={lang===locale?'page':undefined}>{languageNames[lang]}</Link>)}</div><a className="button button-small" href="#contacto">{c.cta}</a></div>
       <MobileMenu label={c.menuLabel}><nav aria-label={c.menuLabel}>{c.nav.map((label,i)=><a key={label} href={`#${anchors[i]}`}>{label}</a>)}<div className="mobile-languages">{locales.map(lang=><Link key={lang} href={`/${lang}`} aria-current={lang===locale?'page':undefined}>{languageNames[lang]}</Link>)}</div></nav></MobileMenu>

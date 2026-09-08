@@ -1,4 +1,4 @@
-import Image from 'next/image';
+import HeaderLogo from './header-logo';
 import Link from 'next/link';
 import MobileMenu from './mobile-menu';
 import { interfaceCopy } from './interface-copy';
@@ -27,9 +27,7 @@ export default function SeoServicePage({ content }: { content: SeoServicePageCon
     <main lang={content.htmlLang} className="seo-service-page">
       <a className="skip-link" href="#service-content">{ui.skip}</a>
       <header className="site-header">
-        <Link className="brand brand-logo-link" href={`/${content.locale}#inicio`} aria-label="Vértice Sino">
-          <Image className="brand-logo" src="/vertice-sino-logo.png" alt="Vértice Sino — Business & Technology" width={575} height={119} priority />
-        </Link>
+        <HeaderLogo href={`/${content.locale}#inicio`} />
         <nav className="nav" aria-label={dictionary.menuLabel}>
           {dictionary.nav.map((label, index) => <a key={label} href={`/${content.locale}#${homeAnchors[index]}`}>{label}</a>)}
         </nav>
