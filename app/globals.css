@@ -91,3 +91,11 @@ main[lang="zh-CN"]{font-family:"Microsoft YaHei","PingFang SC",var(--font-body),
   .seo-service-editorial{padding-inline:16px}
   .seo-service-editorial h2,.seo-service-comparison h2,.seo-service-use-cases h2,.seo-service-related h2,.seo-service-faq h2,.seo-service-cta h2{font-size:33px}
 }
+
+@media(max-height:520px) and (orientation:landscape) and (max-width:1120px){
+  .mobile-menu nav{max-height:calc(100dvh - 86px - env(safe-area-inset-bottom,0px));overflow-y:auto}
+}
+
+@media(min-width:721px) and (max-width:1120px) and (max-height:520px) and (orientation:landscape){
+  .site-header{padding-left:max(clamp(24px,4vw,64px),env(safe-area-inset-left,0px));padding-right:max(clamp(24px,4vw,64px),env(safe-area-inset-right,0px))}
+}
